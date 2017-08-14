@@ -1,6 +1,6 @@
 policies:
 
-- name: s3-global-access
+- name: s3-global-cli-access
   resource: s3
   filters:
     - type: global-grants
