@@ -1,0 +1,25 @@
+policies:
+  - name: offhours-stop
+    resource: ec2
+    mode:
+        type: periodic
+        role: arn:aws:iam::047283044064:role/CCustodianLambda
+        schedule: "rate(1 hour)"
+    filters:
+       - type: offhour
+         opt-out: false 
+         default_tz: cdt
+         offhour: 14
+    actions:
+      - stop
+
+  - name: offhours-start
+    resource: ec2
+    filters:
+      - type: onhour
+        opt-out: false
+        default_tz: cdt
+        onhour: 8 
+    actions:
+      - start
+

@@ -1,0 +1,21 @@
+policies:
+  - name: offhours-stop
+    resource: ec2
+    filters:
+       - type: offhour
+         opt-out: false 
+         default_tz: cdt
+         offhour: 13
+    actions:
+      - stop
+
+  - name: offhours-start
+    resource: ec2
+    filters:
+      - type: onhour
+        opt-out: false
+        default_tz: cdt
+        onhour: 8 
+    actions:
+      - start
+

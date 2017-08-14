@@ -1,0 +1,10 @@
+policies:
+  - name: my-first-policy
+    mode:
+        type: config-rule
+        role: arn:aws:iam::047283044064:role/CCustodianLambda
+    resource: ec2
+    filters:
+      - "tag:Custodian": present
+    actions:
+      - stop
