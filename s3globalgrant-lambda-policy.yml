@@ -1,10 +1,11 @@
 policies:
 
-- name: s3-global-access
+- name: s3-global-access-lambda
   resource: s3
   mode: 
-    type: config-rule
+    type: periodic
     role: arn:aws:iam::047283044064:role/CCustodianLambda
+    schedule: "cron(0/1 * * * ? *)"
   filters:
     - type: global-grants
   actions:
