@@ -1,0 +1,11 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install awscli
+      - pip install c7n
+  build:
+    commands:
+      - custodian run --output-dir s3://tac-cc-outputlogs --metrics test.yml --region us-east-2
+      - custodian run --output-dir s3://tac-cc-outputlogs --metrics s3globalgrant-lambda-policy.yml --region us-east-2
