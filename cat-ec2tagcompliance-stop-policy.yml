@@ -1,0 +1,155 @@
+policies:
+  - name: ec2-tag-compliance-mark
+    resource: ec2
+    comment: |
+      Find all running (non-ASG) instances that are not conformant
+      to tagging policies, and tag them for stoppage in 5 days.
+    mode:
+      type: periodic
+      role: arn:aws:iam::047283044064:role/CCustodianLambda
+      schedule: "cron(0/1 * * * ? *)"
+    filters:
+      - State.Name: running
+      - "tag:aws:autoscaling:groupName": absent
+      - "tag:status": absent
+      - or:
+        - "tag:chargecode": empty
+        - "tag:businessowner": empty
+        - "tag:techowner": empty
+        - "tag:environment": absent
+        - "tag:managedby": absent
+        - "tag:riskdomain": absent
+        - type: value
+          key: "tag:environment"
+          op: ni
+          value:
+            - qa
+            - dev
+            - prod
+        - type: value
+          key: "tag:managedby"
+          op: ni
+          value:
+            - cat
+            - ctsh
+        - type: value
+          key: "tag:riskdomain"
+          op: ni
+          value:
+            - dl
+            - wl
+            - al
+    actions:
+      - type: mark-for-op
+        tag: status
+        op: stop
+        days: 5
+
+  - name: ec2-tag-compliance-unmark
+    resource: ec2
+    comment: |
+      Any instances which have previously been marked as
+      non compliant with tag policies, that are now compliant
+      should be unmarked as non-compliant.
+    mode:
+      type: periodic
+      role: arn:aws:iam::047283044064:role/CCustodianLambda
+      schedule: "cron(0/1 * * * ? *)"
+    filters:
+      - "tag:status": not-null
+      - "tag:chargecode": not-null
+      - "tag:businessowner": not-null
+      - "tag:techowner": not-null
+      - "tag:environment": not-null
+      - "tag:managedby": not-null
+      - "tag:riskdomain": not-null
+      - type: value
+        key: "tag:environment"
+        op: in
+        value:
+          - qa
+          - dev
+          - prod
+      - type: value
+        key: "tag:managedby"
+        op: in
+        value:
+          - cat
+          - ctsh
+      - type: value
+        key: "tag:riskdomain"
+        op: in
+        value:
+          - dl
+          - wl
+          - al
+
+    actions:
+      - type: unmark
+        tags: 
+          - status
+      - start
+
+  - name: ec2-tag-compliance-report
+    resource: ec2
+    comment: |
+      Create a config rule to show instances with 
+      non-compliance status. No action taken.
+    mode:
+      type: config-rule
+      role: arn:aws:iam::047283044064:role/CCustodianLambda
+    filters:
+      - "tag:status": not-null
+
+  - name: ec2-tag-compliance-stop
+    resource: ec2
+    comment: |
+      Stop all non autoscaling group instances previously marked 
+      for stoppage by today's date every minute. Also verify that 
+      they continue to not meet tagging policies.
+    mode:
+      type: periodic
+      role: arn:aws:iam::047283044064:role/CCustodianLambda
+      schedule: "cron(0/1 * * * ? *)"
+    filters:
+      - type: marked-for-op
+        op: stop
+        tag: status
+      - or:
+        - "tag:chargecode": empty
+        - "tag:businessowner": empty
+        - "tag:techowner": empty
+        - "tag:environment": absent
+        - "tag:managedby": absent
+        - "tag:riskdomain": absent
+        - type: value
+          key: "tag:environment"
+          op: ni
+          value:
+            - qa
+            - dev
+            - prod
+        - type: value
+          key: "tag:managedby"
+          op: ni
+          value:
+            - cat
+            - ctsh
+        - type: value
+          key: "tag:riskdomain"
+          op: ni
+          value:
+            - dl
+            - wl
+            - al
+    actions:
+      - stop
+
+
+
+
+
+
+
+
+ 
