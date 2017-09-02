@@ -8,6 +8,9 @@ policies:
       type: periodic
       role: arn:aws:iam::047283044064:role/CCustodianLambda
       schedule: "cron(0/1 * * * ? *)"
+      execution-options:
+        output_dir: s3://tac-cc-outputlogs
+        log_group: /aws/custodian-ec2-tag-compliance-mark/resources
     filters:
       - State.Name: running
       - "tag:aws:autoscaling:groupName": absent
@@ -55,6 +58,8 @@ policies:
       type: periodic
       role: arn:aws:iam::047283044064:role/CCustodianLambda
       schedule: "cron(0/1 * * * ? *)"
+      execution-options:
+        output_dir: s3://tac-cc-outputlogs
     filters:
       - "tag:status": not-null
       - "tag:chargecode": not-null
@@ -86,14 +91,14 @@ policies:
 
     actions:
       - type: unmark
-        tags: 
+        tags:
           - status
       - start
 
   - name: ec2-tag-compliance-report
     resource: ec2
     comment: |
-      Create a config rule to show instances with 
+      Create a config rule to show instances with
       non-compliance status. No action taken.
     mode:
       type: config-rule
@@ -104,13 +109,15 @@ policies:
   - name: ec2-tag-compliance-stop
     resource: ec2
     comment: |
-      Stop all non autoscaling group instances previously marked 
-      for stoppage by today's date every minute. Also verify that 
+      Stop all non autoscaling group instances previously marked
+      for stoppage by today's date every minute. Also verify that
       they continue to not meet tagging policies.
     mode:
       type: periodic
       role: arn:aws:iam::047283044064:role/CCustodianLambda
       schedule: "cron(0/1 * * * ? *)"
+      execution-options:
+        output_dir: s3://tac-cc-outputlogs
     filters:
       - type: marked-for-op
         op: stop
@@ -144,12 +151,3 @@ policies:
             - al
     actions:
       - stop
-
-
-
-
-
-
-
-
- 
