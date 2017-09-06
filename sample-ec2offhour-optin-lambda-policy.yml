@@ -5,9 +5,11 @@ policies:
         type: periodic
         role: arn:aws:iam::047283044064:role/CCustodianLambda
         schedule: "rate(1 hour)"
+    execution-options:
+      output_dir: s3://tac-cc-outputlogs
     filters:
        - type: offhour
-         opt-out: false 
+         opt-out: false
          default_tz: cdt
          offhour: 14
     actions:
@@ -19,7 +21,6 @@ policies:
       - type: onhour
         opt-out: false
         default_tz: cdt
-        onhour: 8 
+        onhour: 8
     actions:
       - start
-

@@ -2,10 +2,13 @@ policies:
 
 - name: s3-global-access-lambda
   resource: s3
-  mode: 
+  mode:
     type: periodic
     role: arn:aws:iam::047283044064:role/CCustodianLambda
     schedule: "cron(0/1 * * * ? *)"
+    execution-options:
+      output_dir: s3://tac-cc-outputlogs
+
   filters:
     - type: global-grants
   actions:
