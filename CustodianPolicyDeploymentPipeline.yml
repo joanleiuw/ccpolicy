@@ -45,10 +45,9 @@ Resources:
   ArtifactStoreBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ['-', [!Ref 'AWS::StackName','artifactstore']]
+      BucketName: !Join ['-', ['custodian-codepipeline', !Select [2, !Split ['/', !Ref 'AWS::StackId']]]]
       VersioningConfiguration:
         Status: Enabled
-
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -90,7 +89,7 @@ Resources:
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['_', [!Ref 'AWS::StackName', 'CodePipelineServiceRole']]
+      RoleName: !Join ['_', [!Ref 'PipelineName', 'CodePipelineServiceRole',!Ref 'AWS::Region']]
       AssumeRolePolicyDocument:
         Statement:
         - Action: ['sts:AssumeRole']
@@ -147,7 +146,7 @@ Resources:
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['_', [!Ref 'AWS::StackName', 'CodeBuildServiceRole']]
+      RoleName: !Join ['_', [!Ref 'PipelineName', 'CodeBuildServiceRole',!Ref 'AWS::Region']]
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:

@@ -8,7 +8,7 @@ policies:
     schedule: "cron(0/1 * * * ? *)"
     execution-options:
       output_dir: s3://tac-cc-outputlogs
-
+      assume_role: arn:aws:iam::255876146410:role/CCustodianLambda
   filters:
     - type: global-grants
   actions:
