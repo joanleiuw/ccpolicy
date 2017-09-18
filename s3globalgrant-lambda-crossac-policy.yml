@@ -1,4 +1,19 @@
 policies:
+- name: s3-global-access-047283044064
+  resource: s3
+  mode:
+    type: periodic
+    role: arn:aws:iam::047283044064:role/CCustodianLambda
+    schedule: "cron(0/1 * * * ? *)"
+    execution-options:
+      output_dir: s3://tac-cc-outputlogs
+  filters:
+    - type: global-grants
+  actions:
+    - type: delete-global-grants
+      grantees:
+        - "http://acs.amazonaws.com/groups/global/AllUsers"
+        - "http://acs.amazonaws.com/groups/global/AuthenticatedUsers"
 
 - name: s3-global-access-255876146410
   resource: s3
@@ -8,8 +23,7 @@ policies:
     schedule: "cron(0/1 * * * ? *)"
     execution-options:
       output_dir: s3://tac-cc-outputlogs
-      assume_role: arn:aws:iam::255876146410:role/CCustodianLambda
-      metrics_enabled: true
+      assume_role: arn:aws:iam::255876146410:role/CCustodianLambdaAssume
   filters:
     - type: global-grants
   actions:

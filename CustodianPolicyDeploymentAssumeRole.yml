@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+# Name:   Caterpillar Custodian Deployment Pipeline
+# Author: AWS Professional Services
+# Date:   September 2017
+# Description: This template creates a role for the centralized Custodian
+# Lambda functions to assume and execute the policy in the local
+# account.
+
+Parameters:
+  CustodianAssumeRoleName:
+    Description: Role to be created for the centralised Lambda funtion to assume. Need to match the execution-options setting in the custodian policy file.
+    Type: String
+    Default: CCustodianLambdaAssume
+
+  CentralAccountNumber:
+    Type: String
+    Description: The 12 digit AWS Account Number that will run the Custodian Lambda functions
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Local Account"
+        Parameters:
+          - CustodianAssumeRoleName
+      - Label:
+          default: "Central Account"
+        Parameters:
+          - CentralAccountNumber
+    ParameterLabels:
+      CustodianAssumeRoleName:
+        default: Custodian role name
+      CentralAccountNumber:
+        default: Central AWS account number
+
+Resources:
+  CustodianAssumeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref 'CustodianAssumeRoleName'
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            AWS:
+            - !Join ['',['arn:aws:iam::', !Ref 'CentralAccountNumber', ':root']]
+        Version: '2012-10-17'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+      Policies:
+        - PolicyName: ConfigAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                - 'ec2:*'
+                - 's3:*'
+                - 'config:*'
+                - 'tag:Get'
+                - 'iam:PassRole'
+                - 'logs:*'
+                Effect: Allow
+                Resource: '*'
+Outputs:
+  CustodianAssumeRoleName:
+    Value: !Ref CustodianAssumeRole
